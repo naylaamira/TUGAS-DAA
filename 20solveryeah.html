@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mencapai 20 dengan 4 Angka</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px; 
+        }
+        .container {
+            max-width: 500px;
+            margin: auto; 
+    
+        } 
+        .input-group {
+            margin-bottom: 10px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .input-group input {
+            width: 90%;
+            padding: 8px;
+            box-sizing: border-box; background-color: blanchedalmond;
+        }
+        #result {
+            width: 90%;
+            margin-top: 20px;
+            white-space: pre-wrap; background-color:blanchedalmond/* Preserve whitespace and line breaks */
+        
+        } 
+        
+    </style>
+</head>
+<style>
+    body{background-color: #f5EDED;}
+</style>
+<body>
+    <div class="container">
+        <h1 style="color: #6482ad"><center> 20 Game Solver</center></h1> 
+        <h3 style="color:#6482ad"><left> Masukkan Angka</left></h3>
+        <div id="inputs">
+            <div class="input-group">
+                <label style="color: #6482ad;">Angka ke-1</label>
+                <input type="number" id="angka1" step="any">
+            </div>
+            <div class="input-group">
+                <label style="color: #6482ad;">Angka ke-2</label>
+                <input type="number" id="angka2" step="any">
+            </div>
+            <div class="input-group">
+                <label style="color: #6482ad;">Angka ke-3</label>
+                <input type="number" id="angka3" step="any">
+            </div>
+            <div class="input-group">
+                <label style="color: #6482ad;">Angka ke-4</label>
+                <input type="number" id="angka4" step="any">
+            </div>
+            <button onclick="calculate()">Cari Solusi</button>
+        </div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function duaPuluh(nilai) {
+            return nilai > 19.99 && nilai < 20.01;
+        }
+
+        function hitung(a, b, op) {
+            switch(op) {
+                case '+': return a + b;
+                case '-': return a - b;
+                case '*': return a * b;
+                case '/': 
+                    if (b !== 0) return a / b;
+                    return 0;
+                default: return 0;
+            }
+        }
+
+        function cobaKombinasi(angka, ekspresi) {
+            if (angka.length === 1) {
+                if (duaPuluh(angka[0])) {
+                    return ekspresi[0] + "\n";
+                }
+                return "";
+            }
+
+            let  hasil = "";
+            for (let i = 0; i < angka.length; ++i) {
+                for (let j = i + 1; j < angka.length; ++j) {
+                    // Menghapus angka kedua (j) dan menyimpan angka yang tersisa
+                    let angkaBaru = [];
+                    let ekspresiBaru = [];
+                    for (let k = 0; k < angka.length; ++k) {
+                        if (k !== i && k !== j) {
+                            angkaBaru.push(angka[k]);
+                            ekspresiBaru.push(ekspresi[k]);
+                        }
+                    }
+
+                    // Mencoba setiap operasi
+                    const operasi = ['+', '-', '*', '/'];
+                    for (let op of operasi) {
+                        let hasilHitung = hitung(angka[i], angka[j], op);
+                        let ekspresiHitung = `(${ekspresi[i]} ${op} ${ekspresi[j]})`;
+                        angkaBaru.push(hasilHitung);
+                        ekspresiBaru.push(ekspresiHitung);
+                        hasil += cobaKombinasi(angkaBaru, ekspresiBaru);
+                        angkaBaru.pop();
+                        ekspresiBaru.pop();
+
+                        // Mencoba operasi dengan urutan yang terbalik
+                        if (op === '-' || op === '/') {
+                            hasilHitung = hitung(angka[j], angka[i], op);
+                            ekspresiHitung = `(${ekspresi[j]} ${op} ${ekspresi[i]})`;
+                            angkaBaru.push(hasilHitung);
+                            ekspresiBaru.push(ekspresiHitung);
+                            hasil += cobaKombinasi(angkaBaru, ekspresiBaru);
+                            angkaBaru.pop();
+                            ekspresiBaru.pop();
+                        }
+                    }
+                }
+            }
+            return hasil;
+        }
+
+        function calculate() {
+            const angka1 = parseFloat(document.getElementById('angka1').value);
+            const angka2 = parseFloat(document.getElementById('angka2').value);
+            const angka3 = parseFloat(document.getElementById('angka3').value);
+            const angka4 = parseFloat(document.getElementById('angka4').value);
+            
+            const angka = [angka1, angka2, angka3, angka4];
+            const ekspresi = [angka1.toString(), angka2.toString(), angka3.toString(), angka4.toString()];
+            
+            const hasil = cobaKombinasi(angka, ekspresi);
+            const resultDiv = document.getElementById('result');
+            if (!hasil) {
+                resultDiv.textContent = "Tidak ada solusi ditemukan untuk 20.";
+            } else {
+                resultDiv.textContent = "Hasil :\n\n" + hasil;
+            }
+        }
+    </script>
+</body>
+</html>
