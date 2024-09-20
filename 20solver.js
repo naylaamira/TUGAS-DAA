@@ -1,3 +1,5 @@
+const readline = require('readline');
+
 function duaPuluh(nilai) {
     return nilai > 19.99 && nilai < 20.01;
 }
@@ -25,7 +27,6 @@ function cobaKombinasi(angka, ekspresi) {
     let hasil = "";
     for (let i = 0; i < angka.length; ++i) {
         for (let j = i + 1; j < angka.length; ++j) {
-            // Menghapus angka kedua (j) dan menyimpan angka yang tersisa
             let angkaBaru = [];
             let ekspresiBaru = [];
             for (let k = 0; k < angka.length; ++k) {
@@ -35,9 +36,9 @@ function cobaKombinasi(angka, ekspresi) {
                 }
             }
 
-            // Mencoba setiap operasi
             const operasi = ['+', '-', '*', '/'];
             for (let op of operasi) {
+                if (op === '/' && angka[j] === 0) continue; 
                 let hasilHitung = hitung(angka[i], angka[j], op);
                 let ekspresiHitung = `(${ekspresi[i]} ${op} ${ekspresi[j]})`;
                 angkaBaru.push(hasilHitung);
@@ -46,8 +47,7 @@ function cobaKombinasi(angka, ekspresi) {
                 angkaBaru.pop();
                 ekspresiBaru.pop();
 
-                // Mencoba operasi dengan urutan yang terbalik
-                if (op === '-' || op === '/') {
+                if ((op === '-' || op === '/') && angka[i] !== 0) { 
                     hasilHitung = hitung(angka[j], angka[i], op);
                     ekspresiHitung = `(${ekspresi[j]} ${op} ${ekspresi[i]})`;
                     angkaBaru.push(hasilHitung);
@@ -64,23 +64,37 @@ function cobaKombinasi(angka, ekspresi) {
 
 // Fungsi utama
 function main() {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
     let angka = [];
     let ekspresi = [];
-    
+    let inputCount = 0;
+
+    function getInput() {
+        if (inputCount < 4) {
+            rl.question(`Angka ke - ${inputCount + 1}: `, (input) => {
+                let num = parseFloat(input);
+                angka.push(num);
+                ekspresi.push(num.toString());
+                inputCount++;
+                getInput();
+            });
+        } else {
+            let hasil = cobaKombinasi(angka, ekspresi);
+            if (!hasil) {
+                console.log("Tidak ada solusi ditemukan untuk 20.");
+            } else {
+                console.log("Solusi ditemukan:\n" + hasil);
+            }
+            rl.close();
+        }
+    }
+
     console.log("Masukkan 4 Angka:");
-    for (let i = 0; i < 4; ++i) {
-        let input = prompt(`Angka ke - ${i + 1}:`);
-        let num = parseFloat(input);
-        angka.push(num);
-        ekspresi.push(num.toString());
-    }
-    
-    let hasil = cobaKombinasi(angka, ekspresi);
-    if (!hasil) {
-        console.log("Tidak ada solusi ditemukan untuk 20.");
-    } else {
-        console.log("Solusi ditemukan:\n" + hasil);
-    }
+    getInput();
 }
 
 main();
